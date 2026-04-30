@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phisherman | Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="../../icons/icon128.png" class="logo-circle pulse" alt="Phisherman Logo">
+      <span class="logo-text">Phisherman</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="home">
+        <span>🏠</span> Command Center
+      </button>
+      <button class="nav-btn" data-tab="threats">
+        <span>📊</span> Threat Intelligence
+      </button>
+      <button class="nav-btn" data-tab="parental">
+        <span>👪</span> Parental Center
+      </button>
+      <button class="nav-btn" data-tab="tools">
+        <span>🛠️</span> Security Tools
+      </button>
+      <button class="nav-btn" data-tab="settings">
+        <span>⚙️</span> Engine Settings
+      </button>
+    </nav>
+  </div>
+  
+  <main class="content">
+    <!-- Home Tab -->
+    <section id="tab-home" class="tab-content active">
+      <div class="status-card">
+        <div class="main-logo-wrap">
+          <img src="../../icons/icon128.png" class="hero-logo-white" alt="Phisherman Logo">
+        </div>
+        <h2 class="status-text" id="status-text">System Active & Patrolling</h2>
+        <p class="status-desc">Phisherman AI is actively patrolling your digital waters. All security modules are running at peak performance.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="glass-card">
+          <h3 class="card-title"><span>🛡️</span> Protection Summary</h3>
+          <div class="stat-row">
+            <span class="stat-name">Total Sites Scanned</span>
+            <span class="stat-num" id="stat-scanned">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Threats Neutralized</span>
+            <span class="stat-num" id="stat-blocked" style="color: var(--c-danger)">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Safe Zones Verified</span>
+            <span class="stat-num" id="stat-safe" style="color: var(--c-safe)">0</span>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title"><span>🚀</span> Engine Status</h3>
+          <div class="stat-row">
+            <span class="stat-name">AI Model</span>
+            <span class="stat-num">v3.0 (Advanced Heuristics)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Paranoia Mode</span>
+            <span class="stat-num" id="current-paranoia-text">Balanced</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Last Signature Update</span>
+            <span class="stat-num">Just Now</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Threats Tab -->
+    <section id="tab-threats" class="tab-content hidden">
+      <h1 class="page-title">Threat Intelligence</h1>
+      <p class="page-subtitle">Historical analysis of detected phishing attempts and suspicious domains.</p>
+      
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="input-group">
+          <input type="text" id="history-search" class="modern-input" placeholder="Search history by domain...">
+          <button class="primary-btn" id="btn-clear-history" style="background: var(--c-danger-dim); color: var(--c-danger); border: 1px solid var(--c-danger)">Clear Logs</button>
+        </div>
+      </div>
+
+      <div class="glass-card history-container">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Domain</th>
+              <th>Risk Score</th>
+              <th>Status</th>
+              <th>Detailed Analysis</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Parental Center Tab -->
+    <section id="tab-parental" class="tab-content hidden">
+      <h1 class="page-title">Parental Center</h1>
+      <p class="page-subtitle">Configure advanced protections for younger users and sensitive browsing sessions.</p>
+      
+      <div class="dashboard-grid">
+        <div class="glass-card">
+          <h3 class="card-title"><span>👶</span> Child Mode</h3>
+          <div class="toggle-row">
+            <div>
+              <p style="font-weight: 700;">Enable Child Mode</p>
+              <p class="small-text" style="margin:0;">Forces high-paranoia and blocks adult/suspicious content.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="p-child-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="input-group" style="margin-top: 16px;">
+            <input type="password" id="p-child-pin" class="modern-input" placeholder="Set 4-Digit PIN">
+            <button class="primary-btn" id="btn-save-pin">Save PIN</button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <h3 class="card-title"><span>📱</span> SMS Alerts</h3>
+          <p class="small-text">Receive an alert when a blocked site is attempted while in Child Mode.</p>
+          <div class="input-group">
+            <input type="tel" id="p-alert-phone" class="modern-input" placeholder="+1 (555) 000-0000">
+            <button class="primary-btn" id="btn-save-phone">Save Number</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tools Tab -->
+    <section id="tab-tools" class="tab-content hidden">
+      <h1 class="page-title">Security Tools</h1>
+      <p class="page-subtitle">Manually manage exceptions and export your security configuration.</p>
+      
+      <div class="dashboard-grid">
+        <div class="glass-card">
+          <h3 class="card-title" style="color: var(--c-safe)"><span>✅</span> Personal Safelist</h3>
+          <div class="input-group">
+            <input type="text" id="safe-input" class="modern-input" placeholder="domain.com">
+            <button class="primary-btn" id="btn-add-safe">Add</button>
+          </div>
+          <ul class="domain-list" id="safe-list" style="margin-top: 16px;"></ul>
+        </div>
+        
+        <div class="glass-card">
+          <h3 class="card-title" style="color: var(--c-danger)"><span>🚫</span> Global Blocklist</h3>
+          <div class="input-group">
+            <input type="text" id="block-input" class="modern-input" placeholder="evil-domain.tk">
+            <button class="primary-btn" id="btn-add-block" style="background: var(--c-danger)">Block</button>
+          </div>
+          <ul class="domain-list" id="block-list" style="margin-top: 16px;"></ul>
+        </div>
+      </div>
+
+      <div class="glass-card" style="margin-top: 24px; text-align: center;">
+        <h3 class="card-title"><span>💾</span> Backup & Recovery</h3>
+        <p class="small-text">Export your settings to a JSON file or restore them from a backup.</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button class="primary-btn" id="btn-export-settings">Export Configuration</button>
+          <button class="primary-btn" id="btn-import-settings" style="background: var(--c-surface); color: var(--c-accent); border: 1px solid var(--c-accent)">Import Backup</button>
+          <input type="file" id="import-file" class="hidden" accept=".json">
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Tab -->
+    <section id="tab-settings" class="tab-content hidden">
+      <h1 class="page-title">Engine Settings</h1>
+      <p class="page-subtitle">Adjust the sensitivity of the Phisherman AI analysis engine.</p>
+      
+      <div class="glass-card">
+        <h3 class="card-title"><span>🔥</span> AI Paranoia Level</h3>
+        <p class="small-text">Higher paranoia levels will block sites with even subtle phishing signals.</p>
+        
+        <div class="paranoia-slider-wrap">
+          <input type="range" id="paranoia-slider" min="1" max="3" step="1" value="2">
+          <div class="slider-labels">
+            <span>Lenient<br><small>(Safety Focus)</small></span>
+            <span>Balanced<br><small>(Recommended)</small></span>
+            <span>Paranoid<br><small>(Max Security)</small></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="explain-panel" class="modal hidden">
+    <div class="modal-content glass">
+      <div class="modal-header">
+        <h2>Analysis Breakdown: <span id="explain-domain" style="color: var(--c-accent)"></span></h2>
+        <button id="close-explain" class="close-btn">✕</button>
+      </div>
+      <div class="reputation-box" style="margin-bottom: 24px;">
+        <div class="rep-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <p class="small-text">Calculated Risk Score</p>
+            <strong id="explain-score" style="font-size: 32px;">--</strong>
+          </div>
+          <div>
+            <p class="small-text">Security Trend</p>
+            <strong id="explain-trend" style="font-size: 24px;">--</strong>
+          </div>
+        </div>
+      </div>
+      <div class="findings-box">
+        <h3 class="card-title"><span>🔍</span> Evidence Log</h3>
+        <ul id="explain-reasons"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+/* ─── Phisherman Content Styles ─────────────────────────────────────────────── */
+
+/* ── Suspicious Banner ─────────────────────────────────────────────────────── */
+#phisherman-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483646;
+  background: linear-gradient(135deg, #78350f, #92400e);
+  color: #fef3c7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  animation: phisherman-slide-down 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-bottom: 2px solid #f59e0b;
+}
+
+@keyframes phisherman-slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.phisherman-banner-hide {
+  animation: phisherman-slide-up 0.4s ease forwards !important;
+}
+
+@keyframes phisherman-slide-up {
+  to { transform: translateY(-100%); opacity: 0; }
+}
+
+.phisherman-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.phisherman-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.phisherman-banner-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phisherman-banner-content strong {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: #fbbf24;
+}
+
+.phisherman-banner-content span {
+  font-size: 13px;
+  color: #fef9ec;
+  line-height: 1.4;
+}
+
+.phisherman-banner-close {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  color: #fef3c7;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 5px 10px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.phisherman-banner-close:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ── Phishing Overlay ──────────────────────────────────────────────────────── */
+#phisherman-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#phisherman-overlay.phisherman-overlay-visible {
+  opacity: 1;
+}
+
+.phisherman-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 0, 0, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.phisherman-overlay-card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(160deg, #1a0505 0%, #2d0a0a 50%, #1a0505 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 20px;
+  padding: 40px 36px;
+  max-width: 480px;
+  width: calc(100% - 40px);
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(239,68,68,0.15),
+    0 25px 80px rgba(239,68,68,0.25),
+    0 8px 32px rgba(0,0,0,0.6);
+  transform: scale(0.92);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#phisherman-overlay.phisherman-overlay-visible .phisherman-overlay-card {
+  transform: scale(1);
+}
+
+.phisherman-overlay-shield {
+  font-size: 52px;
+  margin-bottom: 16px;
+  display: block;
+  animation: phisherman-pulse 2s ease infinite;
+}
+
+@keyframes phisherman-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+
+.phisherman-overlay-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fca5a5;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.phisherman-overlay-subtitle {
+  font-size: 14px;
+  color: #fecaca;
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.phisherman-overlay-score {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 12px;
+  padding: 10px 24px;
+  margin-bottom: 20px;
+}
+
+.phisherman-score-num {
+  font-size: 36px;
+  font-weight: 900;
+  color: #f87171;
+  line-height: 1;
+}
+
+.phisherman-score-label {
+  font-size: 11px;
+  color: #fca5a5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.phisherman-reasons-list {
+  list-style: none;
+  margin: 0 0 24px 0;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phisherman-reason-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(239,68,68,0.08);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #fecaca;
+  line-height: 1.4;
+}
+
+.phisherman-reason-icon {
+  color: #f87171;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.phisherman-overlay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.phisherman-btn-back {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: -0.01em;
+}
+
+.phisherman-btn-back:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(239,68,68,0.4);
+}
+
+.phisherman-btn-continue {
+  background: transparent;
+  color: rgba(252,165,165,0.7);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.phisherman-btn-continue:hover {
+  background: rgba(239,68,68,0.08);
+  color: #fca5a5;
+}
+
+.phisherman-overlay-footer {
+  font-size: 11px;
+  color: rgba(252,165,165,0.4);
+  margin: 0;
+  letter-spacing: 0.04em;
+}

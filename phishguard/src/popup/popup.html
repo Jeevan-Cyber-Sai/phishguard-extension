@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phisherman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Auth View -->
+  <div id="auth-view" class="auth-container hidden">
+    <div class="auth-content">
+      <div class="auth-header-logo">
+        <img src="../../icons/icon128.png" class="logo-circle" width="48" height="48" alt="Phisherman Logo">
+        <span class="logo-text">Phisherman</span>
+        <p id="auth-header-text">Premium Web Security</p>
+      </div>
+      <div id="auth-form-container" style="width: 100%;">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <img src="../../icons/icon128.png" class="logo-circle" width="24" height="24" alt="Phisherman Logo">
+        <span class="logo-text">Phisherman</span>
+      </div>
+      <div class="header-actions">
+        <button class="logout-btn" id="logout-btn">Lock</button>
+        <button id="refresh-btn" class="refresh-btn" title="Re-analyze">🔄</button>
+        <button class="settings-btn" id="dashboard-btn" title="Command Center">🏠</button>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="state-container">
+      <div class="loading-ring">
+        <div class="loading-arc"></div>
+      </div>
+      <p class="loading-text">Analyzing page security…</p>
+    </div>
+
+    <!-- Scan Status Indicator (Dynamic) -->
+    <div id="scan-status" class="scan-status hidden">
+      <div class="status-dot pulse"></div>
+      <span id="status-text">URL Analysis Complete. Checking page content…</span>
+    </div>
+
+    <!-- No Data State -->
+    <div id="nodata-state" class="state-container hidden">
+      <div class="nodata-icon">🔍</div>
+      <p class="nodata-text">No data yet for this page.</p>
+      <button class="btn-analyze" id="btn-analyze">Analyze Now</button>
+    </div>
+
+    <!-- Result State -->
+    <div id="result-state" class="hidden">
+      <!-- Score Section -->
+      <section class="score-section" id="score-section">
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+              stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="score-center">
+            <span class="score-num" id="score-num">--</span>
+            <span class="score-max">/100</span>
+          </div>
+        </div>
+        <div class="score-meta">
+          <div class="risk-badge" id="risk-badge">Analyzing…</div>
+          <div class="confidence-row">
+            <span class="conf-label">CONFIDENCE</span>
+            <span class="conf-value" id="conf-value">–</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Domain Info -->
+      <div class="domain-pill" id="domain-pill">
+        <span class="domain-text" id="domain-text">—</span>
+        <span class="trusted-badge hidden" id="trusted-badge">Trusted</span>
+      </div>
+
+      <!-- Extra Information (Site Actions) -->
+      <div id="site-actions-container" class="site-actions-container"></div>
+
+      <!-- Reasons -->
+      <section class="reasons-section">
+        <button class="toggle-more" id="toggle-more" style="width: 100%; margin-bottom: 8px;">
+          <span id="toggle-text">View analysis</span>
+        </button>
+        <ul class="reasons-list hidden" id="reasons-list"></ul>
+      </section>
+
+      <!-- View Dashboard -->
+      <div style="text-align: center; margin-bottom: 12px; margin-top: -4px;">
+        <a href="#" id="view-dashboard-link" style="color: var(--c-muted); font-size: 11px; text-decoration: none;">View Detailed AI Evidence →</a>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions" id="actions"></div>
+      
+      <!-- Extended Actions -->
+      <div class="actions" id="extended-actions" style="margin-top: 4px; padding-top: 0;">
+        <button class="action-btn secondary" id="btn-favorite">★ Favorite</button>
+        <button class="action-btn secondary" id="btn-block">⃠ Block Site</button>
+      </div>
+
+      <!-- Child Mode Toggle -->
+      <div class="child-mode-container" style="padding: 10px 16px; border-top: 1px solid var(--c-border); display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 13px; font-weight: 700; color: var(--c-accent);">Child Mode</span>
+          <span style="font-size: 10px; color: var(--c-muted);">Parental Control</span>
+        </div>
+        <label class="switch" style="position: relative; display: inline-block; width: 34px; height: 20px;">
+          <input type="checkbox" id="child-mode-toggle" style="opacity: 0; width: 0; height: 0;">
+          <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Phisherman · Privacy-first protection</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
