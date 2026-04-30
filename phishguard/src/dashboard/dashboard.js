@@ -156,12 +156,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById("btn-plan-pro")?.addEventListener("click", async () => {
-    // Simulated checkout flow
-    if (confirm("Simulated Checkout: Confirm payment of ₹299/mo for Phisherman Pro?")) {
+    // Open Payment Modal
+    const modal = document.getElementById("payment-modal");
+    const qrImg = document.getElementById("upi-qr-code");
+    
+    // Generate UPI Intent String
+    const upiId = "9445426847@fam";
+    const amount = "299";
+    const name = "Phisherman Pro";
+    const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+    
+    // Load QR Code dynamically
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
+    
+    modal.classList.remove("hidden");
+  });
+
+  document.getElementById("btn-close-payment")?.addEventListener("click", () => {
+    document.getElementById("payment-modal").classList.add("hidden");
+  });
+
+  document.getElementById("btn-payment-success")?.addEventListener("click", async () => {
+    const modal = document.getElementById("payment-modal");
+    modal.classList.add("hidden");
+    
+    // Simulate API verification delay
+    const btnPro = document.getElementById("btn-plan-pro");
+    const originalText = btnPro.textContent;
+    btnPro.textContent = "Verifying Payment...";
+    
+    setTimeout(async () => {
       await setPlan("pro");
       await updatePlanUI();
-      alert("Welcome to Phisherman Pro! All premium features are now unlocked.");
-    }
+      alert("Payment successful! Welcome to Phisherman Pro. All premium features are now unlocked.");
+    }, 1500);
   });
 
   document.getElementById("btn-plan-enterprise")?.addEventListener("click", async () => {
