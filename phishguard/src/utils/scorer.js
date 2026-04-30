@@ -118,11 +118,11 @@ function analyzeURL(url) {
     signals.push({ key: "ip_host", msg: "The site uses a raw IP address instead of a domain name", weight: 30 });
   }
 
-  // Suspicious TLD
+  // Suspicious TLD — strong signal for free/disposable domains
   const tldMatch = SUSPICIOUS_TLDS.has("." + hostname.split(".").slice(-1)[0]);
   if (tldMatch) {
-    score += 15;
-    signals.push({ key: "sus_tld", msg: "This site uses a domain extension commonly associated with free or suspicious hosting", weight: 15 });
+    score += 25;
+    signals.push({ key: "sus_tld", msg: "This site uses a domain extension commonly associated with free or suspicious hosting", weight: 25 });
   }
 
   // Too many subdomains
@@ -132,33 +132,40 @@ function analyzeURL(url) {
     signals.push({ key: "deep_subdomain", msg: "The web address has an unusually deep structure (many subdomain levels)", weight: 12 });
   }
 
-  // Brand impersonation in hostname
+  // Brand impersonation in hostname — very strong signal
   for (const brand of BRAND_IMPERSONATION) {
     if (hostname.includes(brand)) {
-      score += 35;
-      signals.push({ key: "brand_spoof", msg: "The domain name appears to impersonate a well-known brand", weight: 35 });
+      score += 45;
+      signals.push({ key: "brand_spoof", msg: "The domain name appears to impersonate a well-known brand", weight: 45 });
       break;
     }
   }
 
-  // Phishing keyword in URL
+  // Phishing keyword in URL — strong signal when in hostname
   const fullPath = (pathname + search).toLowerCase();
   let keywordHit = false;
   for (const kw of PHISHING_KEYWORDS) {
-    if (hostname.includes(kw) || fullPath.includes(kw)) {
+    if (hostname.includes(kw)) {
+      // Keywords in the hostname itself are a stronger signal
       if (!keywordHit) {
-        score += 20;
-        signals.push({ key: "phish_keyword", msg: "The web address contains phrases often used in fake security pages", weight: 20 });
+        score += 30;
+        signals.push({ key: "phish_keyword", msg: "The domain name contains phrases often used in fake security pages", weight: 30 });
+        keywordHit = true;
+      }
+    } else if (fullPath.includes(kw)) {
+      if (!keywordHit) {
+        score += 15;
+        signals.push({ key: "phish_keyword", msg: "The web address contains phrases often used in fake security pages", weight: 15 });
         keywordHit = true;
       }
     }
   }
 
-  // Excessive hyphens in domain
+  // Excessive hyphens in domain (2+ is suspicious)
   const domainPart = hostname.split(".")[0];
-  if ((domainPart.match(/-/g) || []).length >= 3) {
-    score += 10;
-    signals.push({ key: "many_hyphens", msg: "The domain name contains an unusual number of hyphens", weight: 10 });
+  if ((domainPart.match(/-/g) || []).length >= 2) {
+    score += 12;
+    signals.push({ key: "many_hyphens", msg: "The domain name contains an unusual number of hyphens", weight: 12 });
   }
 
   // Very long URL
@@ -227,6 +234,16 @@ function analyzeURL(url) {
       msg: "The URL uses excessive character encoding, which can be used to hide malicious code", 
       weight: 15 
     });
+  }
+
+  // Compound signal bonus: when multiple strong signals fire together,
+  // confidence is very high and score should reflect that.
+  const highConfidenceKeys = new Set(["brand_spoof", "fuzzy_match", "sus_tld", "no_https", "phish_keyword", "ip_host"]);
+  const highConfidenceHits = signals.filter(s => highConfidenceKeys.has(s.key)).length;
+  if (highConfidenceHits >= 3) {
+    const bonus = 15;
+    score += bonus;
+    signals.push({ key: "compound_risk", msg: "Multiple strong phishing indicators detected simultaneously", weight: bonus });
   }
 
   return { score: Math.min(score, 100), signals };
