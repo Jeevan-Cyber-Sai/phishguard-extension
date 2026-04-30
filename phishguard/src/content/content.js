@@ -19,6 +19,12 @@
       bannerShown = true;
       showSuspiciousBanner(msg.result);
     }
+    if (msg.type === "SHOW_TRACKING_INDICATOR") {
+      showTrackingIndicator(msg.trackingLevel, msg.cookieRiskColor);
+    }
+    if (msg.type === "SHOW_TOAST") {
+      showToast(msg.text, msg.icon);
+    }
   });
 
   // ─── Suspicious Banner (non-intrusive) ────────────────────────────────────
@@ -125,6 +131,67 @@
       }, 400);
       // Show a persistent small badge so user stays informed
       showSuspiciousBanner({ topReasons: ["You chose to continue on a flagged site. Be cautious."] });
+    });
+  // ─── Toast Notifications ─────────────────────────────────────────────────
+  function showToast(text, icon = "ℹ️") {
+    let container = document.getElementById("phisherman-toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "phisherman-toast-container";
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "phisherman-toast";
+    toast.innerHTML = `
+      <span class="phisherman-toast-icon">${icon}</span>
+      <span class="phisherman-toast-text">${text}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      toast.classList.add("phisherman-toast-hide");
+      setTimeout(() => toast.remove(), 400);
+    }, 4000);
+  }
+  function showTrackingIndicator(level, colorClass) {
+    if (document.getElementById("phisherman-tracking-badge")) {
+      document.getElementById("phisherman-tracking-badge").remove();
+    }
+
+    const badge = document.createElement("div");
+    badge.id = "phisherman-tracking-badge";
+    
+    // Mapping color classes to hex for inline styles if needed, 
+    // but better to use a dedicated class if possible.
+    const colors = { safe: "#22c55e", suspicious: "#f59e0b", danger: "#ef4444" };
+    const color = colors[colorClass] || "#7d8590";
+
+    badge.innerHTML = `
+      <div class="phisherman-badge-dot" style="background: ${color};"></div>
+      <span>${level}</span>
+    `;
+
+    // Modern "pill" style floating in bottom right
+    Object.assign(badge.style, {
+      position: "fixed", bottom: "20px", right: "20px",
+      padding: "8px 12px", background: "rgba(13, 17, 23, 0.9)",
+      color: "white", borderRadius: "20px", border: `1px solid ${color}`,
+      fontSize: "11px", fontWeight: "700", fontFamily: "sans-serif",
+      display: "flex", alignItems: "center", gap: "8px",
+      zIndex: "999999", backdropFilter: "blur(4px)",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.3)", transition: "all 0.3s ease",
+      cursor: "pointer"
+    });
+
+    document.body.appendChild(badge);
+    
+    badge.addEventListener("click", () => {
+      // Toggle visibility or expand to show info
+      badge.style.opacity = "0.3";
+      setTimeout(() => badge.style.opacity = "1", 2000);
     });
   }
 

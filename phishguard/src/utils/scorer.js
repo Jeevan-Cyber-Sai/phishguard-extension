@@ -309,11 +309,11 @@ export function computeFinalScore({ urlScore, urlSignals, contentScore, contentS
   // Classification based on Paranoia (1=Lenient, 2=Balanced, 3=Paranoid)
   let riskLevel, color;
   
-  let suspThresh = 35;
-  let phishThresh = 65;
+  let suspThresh = 40;
+  let phishThresh = 70;
   
-  if (paranoiaLevel === 1) { suspThresh = 45; phishThresh = 85; }
-  else if (paranoiaLevel === 3) { suspThresh = 20; phishThresh = 40; }
+  if (paranoiaLevel === 1) { suspThresh = 50; phishThresh = 85; }
+  else if (paranoiaLevel === 3) { suspThresh = 25; phishThresh = 50; }
 
   if (combined < suspThresh) { riskLevel = "Safe"; color = "safe"; }
   else if (combined < phishThresh) { riskLevel = "Suspicious"; color = "suspicious"; }

@@ -44,29 +44,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const statScanned = document.getElementById("stat-scanned");
     const statBlocked = document.getElementById("stat-blocked");
     const statSafe    = document.getElementById("stat-safe");
-    const mainScoreVal = document.getElementById("main-score-val");
-    const mainScoreRing = document.getElementById("main-score-ring");
+    const statCookies = document.getElementById("stat-cookies-neutralized");
+    const statPrivacy = document.getElementById("stat-privacy-threats");
     const statusText  = document.getElementById("status-text");
 
     const total = history.length;
     const blocked = history.filter(h => h.riskLevel === "Phishing").length;
     const safe = history.filter(h => h.riskLevel === "Safe").length;
+    
+    let totalTrackers = 0;
+    let highPrivacyRiskSites = 0;
+    
+    history.forEach(h => {
+        if (h.cookieIntelligence) {
+            totalTrackers += h.cookieIntelligence.stats.tracking;
+            if (h.cookieIntelligence.risk.score > 50) highPrivacyRiskSites++;
+        }
+    });
 
     if (statScanned) statScanned.textContent = total;
     if (statBlocked) statBlocked.textContent = blocked;
     if (statSafe)    statSafe.textContent = safe;
+    if (statCookies) statCookies.textContent = totalTrackers;
+    if (statPrivacy) statPrivacy.textContent = highPrivacyRiskSites;
 
     // Calculate Global Safety Score (Simple heuristic: % of safe sites vs total)
     let safetyScore = 100;
     if (total > 0) {
       safetyScore = Math.round((safe / total) * 100);
     }
-
-    if (mainScoreVal) mainScoreVal.textContent = safetyScore;
-    
-    // Update Ring (Circumference is 565 for r=90)
-    const offset = 565 - (safetyScore / 100) * 565;
-    if (mainScoreRing) mainScoreRing.style.strokeDashoffset = offset;
 
     // Update Status Text
     if (statusText) {
@@ -141,6 +147,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         await chrome.storage.local.set({ phishermanChildMode: true });
       }
     });
+
+    const autoProtectToggle = document.getElementById("auto-protect-toggle");
+    const { phishermanAutoProtect } = await chrome.storage.local.get("phishermanAutoProtect");
+    if (autoProtectToggle) {
+        autoProtectToggle.checked = !!phishermanAutoProtect;
+        autoProtectToggle.addEventListener("change", async (e) => {
+            await chrome.storage.local.set({ phishermanAutoProtect: e.target.checked });
+        });
+    }
   }
 
   // ─── Lists & Tools ────────────────────────────────────────────────────────
@@ -229,11 +244,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tbody = document.getElementById("history-tbody");
     if (!tbody) return;
 
+    const thead = tbody.closest('table').querySelector('thead');
+    if (thead) {
+        thead.innerHTML = `
+            <tr>
+              <th>Time</th>
+              <th>Domain</th>
+              <th>Phish Score</th>
+              <th>Cookie Risk</th>
+              <th>Status</th>
+              <th>Detailed Analysis</th>
+            </tr>
+        `;
+    }
+
     tbody.innerHTML = history.slice().reverse().slice(0, 50).map((item) => `
       <tr data-time="${item.time}">
         <td>${new Date(item.time).toLocaleTimeString()}</td>
         <td>${item.domain || "Unknown"}</td>
         <td style="font-weight:700;">${item.score}</td>
+        <td style="font-weight:700; color: ${item.cookieIntelligence ? 'var(--c-' + item.cookieIntelligence.risk.color + ')' : 'var(--c-muted)'}">
+            ${item.cookieIntelligence ? item.cookieIntelligence.risk.score : '--'}
+        </td>
         <td>
           <span class="status-pill ${item.riskLevel === 'Phishing' ? 'danger' : 'safe'}">
             ${item.riskLevel}

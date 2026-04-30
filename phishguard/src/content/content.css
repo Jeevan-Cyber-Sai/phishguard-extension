@@ -258,3 +258,50 @@
   margin: 0;
   letter-spacing: 0.04em;
 }
+
+/* ── Toast Notifications ─────────────────────────────────────────────────── */
+#phisherman-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.phisherman-toast {
+  background: rgba(13, 17, 23, 0.95);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+  animation: phisherman-toast-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes phisherman-toast-in {
+  from { transform: translateX(100%) scale(0.9); opacity: 0; }
+  to   { transform: translateX(0) scale(1);     opacity: 1; }
+}
+
+.phisherman-toast-hide {
+  animation: phisherman-toast-out 0.4s ease forwards !important;
+}
+
+@keyframes phisherman-toast-out {
+  to { transform: translateX(100%) scale(0.9); opacity: 0; }
+}
+
+.phisherman-toast-icon {
+  font-size: 16px;
+}

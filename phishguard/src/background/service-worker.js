@@ -5,6 +5,8 @@
 
 import { analyzeURLFeatures, analyzeContent, computeFinalScore, TRUSTED_DOMAINS } from "../utils/scorer.js";
 import { domainCache, getVisitCount, incrementVisitCount } from "../utils/cache.js";
+import { analyzeCookies, getCookieExplanations } from "../utils/cookie-intelligence.js";
+import { computeCookieRiskScore, computeOverallSafety } from "../utils/cookie-risk-engine.js";
 
 // ─── Tab State ────────────────────────────────────────────────────────────────
 const tabResults = new Map(); // tabId → result
@@ -144,13 +146,58 @@ async function analyzeTab(tab) {
       isTrusted: trusted, isFrequentlyVisited, paranoiaLevel
     });
 
+    // 8. STAGE 3: Cookie Intelligence (Background-only API)
+    let cookieData = { total: 0, tracking: 0, analytics: 0, suspicious: 0, details: [] };
+    let cookieRisk = { score: 0, riskLevel: "Low", color: "safe", trackingLevel: "Low Tracking" };
+    let cookieExplanations = [];
+
+    try {
+      const cookies = await chrome.cookies.getAll({ domain: parsed.hostname });
+      cookieData = analyzeCookies(cookies, domain);
+      cookieRisk = computeCookieRiskScore(cookieData);
+      cookieExplanations = getCookieExplanations(cookieData);
+    } catch (e) {
+      console.debug("[Phisherman] Cookie analysis failed:", e.message);
+    }
+
+    // 9. Final Fusion
+    const overallSafety = computeOverallSafety(result.score, cookieRisk.score);
+
     result.url = tab.url;
     result.domain = domain;
     result.loading = false;
     result.analyzedAt = Date.now();
+    
+    // Attach cookie intelligence
+    result.cookieIntelligence = {
+      stats: cookieData,
+      risk: cookieRisk,
+      explanations: cookieExplanations,
+      overallSafety
+    };
 
     await updateUIAndHistory(tab, domain, result);
+    
+    // 10. Auto-Protection System
+    const { phishermanAutoProtect } = await chrome.storage.local.get("phishermanAutoProtect");
+    if (phishermanAutoProtect && cookieRisk.score > 70) {
+      blockNonEssentialCookies(parsed.hostname, domain);
+    }
   }, 1000);
+}
+
+// ─── Cookie Management ────────────────────────────────────────────────────────
+async function blockNonEssentialCookies(hostname, domain) {
+  const cookies = await chrome.cookies.getAll({ domain: hostname });
+  const toDelete = cookies.filter(c => {
+    const { category } = analyzeCookies([c], domain);
+    return category !== "Essential";
+  });
+
+  for (const c of toDelete) {
+    const url = `http${c.secure ? "s" : ""}://${c.domain.replace(/^\./, "")}${c.path}`;
+    await chrome.cookies.remove({ url, name: c.name });
+  }
 }
 
 // ─── Update UI & History helper ───────────────────────────────────────────────
@@ -178,18 +225,34 @@ async function updateUIAndHistory(tab, domain, result) {
   updateIcon(tab.id, result.color);
   notifyPopup(tab.id, result);
 
-  // 9. If phishing, instruct content script to show overlay
+  // 9. Tiered Phishing Alert System
   if (result.riskLevel === "Phishing" && result.confidence !== "Low") {
     try {
+      // High Risk (>70): Show full-page overlay
       await chrome.tabs.sendMessage(tab.id, { type: "SHOW_OVERLAY", result });
     } catch (e) {
       console.debug("[Phisherman] Could not send overlay message:", e.message);
     }
   } else if (result.riskLevel === "Suspicious") {
     try {
+      // Suspicious (40-70): Show top banner
       await chrome.tabs.sendMessage(tab.id, { type: "SHOW_BANNER", result });
     } catch (e) {
       console.debug("[Phisherman] Could not send banner message:", e.message);
+    }
+  }
+  // Safe (<40): No action (handled by background badge/popup)
+
+  // 10. Send Tracking Indicator
+  if (result.cookieIntelligence) {
+    try {
+      await chrome.tabs.sendMessage(tab.id, { 
+        type: "SHOW_TRACKING_INDICATOR", 
+        trackingLevel: result.cookieIntelligence.risk.trackingLevel,
+        cookieRiskColor: result.cookieIntelligence.risk.color
+      });
+    } catch (e) {
+       console.debug("[Phisherman] Could not send tracking indicator message:", e.message);
     }
   }
 }
@@ -309,6 +372,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
        const phone = res.phishermanPhone || "unknown number";
        console.log(`[SMS SIMULATION] Sending alert to ${phone}: Child attempted to access high risk site ${msg.domain}`);
     });
+  }
+  
+  if (msg.type === "DELETE_SITE_COOKIES") {
+    chrome.tabs.get(msg.tabId).then(async tab => {
+      if (!tab.url) return;
+      const url = new URL(tab.url);
+      const cookies = await chrome.cookies.getAll({ domain: url.hostname });
+      for (const c of cookies) {
+        const cUrl = `http${c.secure ? "s" : ""}://${c.domain.replace(/^\./, "")}${c.path}`;
+        await chrome.cookies.remove({ url: cUrl, name: c.name });
+      }
+      sendResponse({ ok: true });
+    });
+    return true;
   }
 });
 

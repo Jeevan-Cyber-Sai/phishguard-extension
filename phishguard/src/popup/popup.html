@@ -61,7 +61,7 @@
     <!-- Result State -->
     <div id="result-state" class="hidden">
       <!-- Score Section -->
-      <section class="score-section" id="score-section">
+      <section class="score-section fade-in-up" id="score-section" style="animation-delay: 0.1s;">
         <div class="score-ring-wrap">
           <svg class="score-ring" viewBox="0 0 120 120">
             <circle class="ring-bg" cx="60" cy="60" r="50"/>
@@ -81,6 +81,11 @@
           </div>
         </div>
       </section>
+
+      <!-- Risk Progress Bar -->
+      <div class="risk-bar-container fade-in-up" style="animation-delay: 0.2s;">
+        <div class="risk-bar-fill" id="risk-bar-fill"></div>
+      </div>
 
       <!-- Domain Info -->
       <div class="domain-pill" id="domain-pill">
@@ -104,9 +109,51 @@
         <a href="#" id="view-dashboard-link" style="color: var(--c-muted); font-size: 11px; text-decoration: none;">View Detailed AI Evidence →</a>
       </div>
 
+      <!-- Quick Actions -->
+      <div class="quick-actions fade-in-up" style="animation-delay: 0.5s;">
+        <button class="quick-btn" id="btn-block-site">
+          <span>🚫</span> Block
+        </button>
+        <button class="quick-btn" id="btn-analyze-page">
+          <span>🔍</span> Scan
+        </button>
+        <button class="quick-btn" id="btn-report-issue">
+          <span>🚩</span> Report
+        </button>
+      </div>
+
       <!-- Action Buttons -->
       <div class="actions" id="actions"></div>
       
+      <!-- Cookie Intelligence Section -->
+      <section class="cookie-section hidden" id="cookie-section">
+        <div class="section-divider"><span>Cookie Intelligence</span></div>
+        <div class="cookie-stats-row">
+          <div class="cookie-stat">
+            <span class="cookie-score" id="cookie-score">--</span>
+            <span class="cookie-label">Risk</span>
+          </div>
+          <div class="cookie-stat-meta">
+            <div class="cookie-badge" id="cookie-badge">Analyzing…</div>
+            <div class="cookie-count" id="cookie-count">0 Cookies Detected</div>
+          </div>
+        </div>
+        <ul class="cookie-explanations" id="cookie-explanations"></ul>
+      </section>
+
+      <!-- Overall Safety -->
+      <section class="overall-section hidden" id="overall-section">
+        <div class="overall-card">
+          <span class="overall-label">OVERALL SAFETY</span>
+          <span class="overall-score" id="overall-score">--</span>
+        </div>
+      </section>
+
+      <!-- Cookie Controls -->
+      <div class="actions" id="cookie-controls" style="margin-top: 8px;">
+        <button class="action-btn secondary" id="btn-delete-cookies">🗑 Delete Cookies for Site</button>
+      </div>
+
       <!-- Extended Actions -->
       <div class="actions" id="extended-actions" style="margin-top: 4px; padding-top: 0;">
         <button class="action-btn secondary" id="btn-favorite">★ Favorite</button>

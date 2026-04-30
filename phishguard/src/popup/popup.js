@@ -28,6 +28,20 @@
   const siteActionsContainer = $("site-actions-container");
   const scanStatus = $("scan-status");
   const statusText = $("status-text");
+  
+  const cookieSection = $("cookie-section");
+  const cookieScoreEl = $("cookie-score");
+  const cookieBadgeEl = $("cookie-badge");
+  const cookieCountEl = $("cookie-count");
+  const cookieExplanationsEl = $("cookie-explanations");
+  const overallSection = $("overall-section");
+  const overallScoreEl = $("overall-score");
+  const btnDeleteCookies = $("btn-delete-cookies");
+  
+  const riskBarFill = $("risk-bar-fill");
+  const btnBlockSite = $("btn-block-site");
+  const btnAnalyzePage = $("btn-analyze-page");
+  const btnReportIssue = $("btn-report-issue");
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
   function show(el) { el.classList.remove("hidden"); }
@@ -62,13 +76,13 @@
   }
 
   // ─── Render Reasons ────────────────────────────────────────────────────────
-  function renderReasons(reasons, container, color, delay = 0) {
+  function renderReasons(reasons, container, color, baseDelay = 0) {
     container.innerHTML = "";
     reasons.forEach((msg, i) => {
       const li = document.createElement("li");
-      li.className = `reason-item ${color}`;
-      li.style.animationDelay = `${delay + i * 60}ms`;
-      const icon = color === "safe" ? "✓" : color === "suspicious" ? "⚠" : "✕";
+      li.className = `reason-item ${color} fade-in-up`;
+      li.style.animationDelay = `${baseDelay + (i * 0.1)}s`;
+      const icon = color === "safe" ? "✓" : color === "suspicious" ? "⚠" : "🚩";
       li.innerHTML = `<span class="reason-icon">${icon}</span><span>${msg}</span>`;
       container.appendChild(li);
     });
@@ -81,7 +95,7 @@
     // If it's a preliminary result but has data, show the result state
     setState("result");
 
-    const { score, riskLevel, color, confidence, topReasons, allReasons, domain, isTrusted, loading } = result;
+    const { score, riskLevel, color, confidence, topReasons, allReasons, domain, isTrusted, loading, cookieIntelligence } = result;
 
     // Show scan status if still performing content analysis
     if (loading) {
@@ -139,6 +153,13 @@
       siteActionsContainer.innerHTML = siteActions.map(a => `<p>${a}</p>`).join('');
     }
 
+    // Risk Progress Bar
+    if (riskBarFill) {
+      setTimeout(() => {
+        riskBarFill.style.width = `${score}%`;
+      }, 300);
+    }
+
     // Reasons
     if (reasonsList) {
       if (riskLevel === "Safe" && (!topReasons || topReasons.length === 0)) {
@@ -150,6 +171,30 @@
       } else {
         renderReasons(topReasons || [], reasonsList, color, 0);
       }
+    }
+
+    // Cookie Intelligence Rendering
+    if (cookieIntelligence) {
+      show(cookieSection);
+      show(overallSection);
+      
+      const { stats, risk, explanations, overallSafety } = cookieIntelligence;
+      
+      cookieScoreEl.textContent = risk.score;
+      cookieScoreEl.style.color = `var(--c-${risk.color})`;
+      cookieBadgeEl.textContent = risk.riskLevel + " Risk";
+      cookieBadgeEl.style.color = `var(--c-${risk.color})`;
+      cookieCountEl.textContent = `${stats.total} Cookies (${stats.tracking} Trackers)`;
+      
+      cookieExplanationsEl.innerHTML = explanations.map((e, i) => 
+        `<li class="fade-in-up" style="animation-delay: ${0.4 + (i * 0.1)}s;">${e}</li>`
+      ).join("");
+      
+      overallScoreEl.textContent = overallSafety;
+      // overallScore color handled by theme class on body
+    } else {
+      hide(cookieSection);
+      hide(overallSection);
     }
 
     // Actions
@@ -426,6 +471,58 @@
       chrome.tabs.reload(); // Reload to trigger block
     });
   }
+
+  if (btnDeleteCookies) {
+    btnDeleteCookies.addEventListener("click", () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        if (!tabs[0]) return;
+        chrome.runtime.sendMessage({ type: "DELETE_SITE_COOKIES", tabId: tabs[0].id }, (res) => {
+          if (res?.ok) {
+            btnDeleteCookies.textContent = "✓ Cookies Deleted";
+            // Send toast to content script
+            chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_TOAST", text: "Cookies deleted for this site.", icon: "🗑️" });
+            setTimeout(() => {
+                btnDeleteCookies.textContent = "🗑 Delete Cookies for Site";
+                triggerReanalysis(tabs[0].id);
+            }, 1500);
+          }
+        });
+      });
+    });
+  }
+
+  // Quick Actions Handlers
+  btnBlockSite?.addEventListener("click", async () => {
+    const domain = $("domain-text").textContent;
+    const { phishermanBlocklist } = await chrome.storage.local.get("phishermanBlocklist");
+    const bl = phishermanBlocklist || [];
+    if (!bl.includes(domain)) bl.push(domain);
+    await chrome.storage.local.set({ phishermanBlocklist: bl });
+    
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_TOAST", text: "Site added to blocklist.", icon: "🚫" });
+        setTimeout(() => chrome.tabs.reload(tabs[0].id), 1000);
+      }
+    });
+  });
+
+  btnAnalyzePage?.addEventListener("click", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs[0]) {
+        triggerReanalysis(tabs[0].id);
+        chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_TOAST", text: "Re-scanning page...", icon: "🔍" });
+      }
+    });
+  });
+
+  btnReportIssue?.addEventListener("click", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_TOAST", text: "Issue reported to Phisherman AI.", icon: "🚩" });
+      }
+    });
+  });
 
   if (childModeToggle) {
     chrome.storage.local.get(["phishermanChildMode"], (res) => {

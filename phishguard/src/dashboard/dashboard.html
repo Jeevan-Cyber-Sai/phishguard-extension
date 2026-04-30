@@ -75,6 +75,22 @@
             <span class="stat-num">Just Now</span>
           </div>
         </div>
+
+        <div class="glass-card">
+          <h3 class="card-title"><span>🍪</span> Cookie Intelligence</h3>
+          <div class="stat-row">
+            <span class="stat-name">Total Tracking Cookies Neutralized</span>
+            <span class="stat-num" id="stat-cookies-neutralized">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Privacy-Invasive Sites</span>
+            <span class="stat-num" id="stat-privacy-threats">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Auto-Protection Status</span>
+            <span class="stat-num" style="color: var(--c-safe)">Active</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -196,6 +212,21 @@
             <span>Paranoid<br><small>(Max Security)</small></span>
           </div>
         </div>
+      </div>
+
+      <div class="glass-card" style="margin-top: 24px;">
+        <h3 class="card-title"><span>🛡️</span> Privacy Auto-Protection</h3>
+        <p class="small-text">Automatically block non-essential cookies on sites with high tracking risk.</p>
+        <div class="toggle-row">
+            <div>
+              <p style="font-weight: 700;">Enable Cookie Auto-Block</p>
+              <p class="small-text" style="margin:0;">Triggers when Cookie Risk Score > 70.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="auto-protect-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
       </div>
     </section>
   </main>

@@ -24,9 +24,11 @@ phisherman/
     │   ├── popup.html              # Extension popup
     │   ├── popup.css               # Popup styles
     │   └── popup.js                # Popup logic
-    └── utils/
+    ├── utils/
         ├── scorer.js               # URL + content scoring engine
-        └── cache.js                # Domain result caching
+        ├── cache.js                # Domain result caching
+        ├── cookie-intelligence.js   # Cookie classification logic
+        └── cookie-risk-engine.js    # Cookie risk scoring logic
 ```
 
 ---
@@ -141,6 +143,14 @@ The dashboard provides a deep-dive into why a site was flagged:
 | **Fuzzy Brand Matching** | Detects domains slightly different from trusted ones (e.g., `g00gle.com`) using Levenshtein distance | +45 |
 | **Homograph Detection** | Detects use of punycode or lookalike international characters | +40 |
 | **Encoded URL Check** | Detects excessive %-encoding used to hide malicious URLs | +15 |
+
+### Cookie Intelligence (Privacy)
+| Signal | Description | Weight |
+|---|---|---|
+| **Tracking Cookies** | Third-party cookies from known ad/tracking domains | High |
+| **Analytics Cookies** | Cookies used for behavioral monitoring (GA, Hotjar, etc.) | Medium |
+| **Suspicious Patterns** | High-entropy random identifiers from unknown domains | Critical |
+| **Cookie Volume** | Total volume of cookies exceeding functional necessity | Low |
 
 ### Trust Adjustments
 | Condition | Effect |
