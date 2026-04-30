@@ -198,9 +198,64 @@
     <!-- Settings Tab -->
     <section id="tab-settings" class="tab-content hidden">
       <h1 class="page-title">Engine Settings</h1>
-      <p class="page-subtitle">Adjust the sensitivity of the Phisherman AI analysis engine.</p>
-      
-      <div class="glass-card">
+      <p class="page-subtitle">Configure Phisherman's core behavior, scanning intensity, and your subscription plan.</p>
+
+      <div class="dashboard-grid">
+        <!-- Plan Upgrade Card -->
+        <div class="glass-card" style="grid-column: 1 / -1; border-color: var(--c-accent); background: linear-gradient(145deg, rgba(21, 29, 48, 0.8) 0%, rgba(59, 130, 246, 0.1) 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+              <h3 class="card-title" style="margin-bottom: 8px;">💎 Subscription Plan</h3>
+              <p class="small-text" style="margin: 0;" id="plan-description">You are currently on the Free plan.</p>
+            </div>
+            <div id="plan-badge-dashboard" style="font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 6px; background: var(--c-muted); color: #020617;">FREE</div>
+          </div>
+          
+          <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <!-- Free Plan -->
+            <div class="glass-card plan-card" id="plan-card-free" style="background: rgba(0,0,0,0.2); padding: 20px;">
+              <h4 style="font-size: 16px; margin-bottom: 8px;">Free</h4>
+              <p style="font-size: 24px; font-weight: 800; margin-bottom: 16px; font-family: var(--font-mono);">₹0</p>
+              <ul style="list-style: none; font-size: 13px; color: var(--c-muted); line-height: 1.8; margin-bottom: 24px;">
+                <li>✓ Basic Phishing Detection</li>
+                <li>✓ 50 Scans per day</li>
+                <li>✓ 7 Days History</li>
+                <li style="opacity: 0.4;">✗ Parental Controls</li>
+              </ul>
+              <button class="primary-btn" id="btn-plan-free" style="width: 100%; background: var(--c-surface); color: var(--c-text); border: 1px solid var(--c-border);">Current Plan</button>
+            </div>
+            
+            <!-- Pro Plan -->
+            <div class="glass-card plan-card" id="plan-card-pro" style="border-color: var(--c-accent); box-shadow: 0 0 20px var(--c-accent-dim); padding: 20px;">
+              <h4 style="font-size: 16px; margin-bottom: 8px; color: var(--c-accent);">Pro</h4>
+              <p style="font-size: 24px; font-weight: 800; margin-bottom: 16px; font-family: var(--font-mono);">₹299<span style="font-size: 12px; color: var(--c-muted); font-weight: normal;">/mo</span></p>
+              <ul style="list-style: none; font-size: 13px; color: var(--c-text); line-height: 1.8; margin-bottom: 24px;">
+                <li>✓ Unlimited Scans</li>
+                <li>✓ Full Cookie Intelligence</li>
+                <li>✓ Parental Controls & Child Mode</li>
+                <li>✓ Priority Threat Updates</li>
+              </ul>
+              <button class="primary-btn" id="btn-plan-pro" style="width: 100%;">Upgrade to Pro</button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="glass-card plan-card" id="plan-card-enterprise" style="background: rgba(0,0,0,0.2); padding: 20px;">
+              <h4 style="font-size: 16px; margin-bottom: 8px; color: var(--c-safe);">Enterprise</h4>
+              <p style="font-size: 24px; font-weight: 800; margin-bottom: 16px; font-family: var(--font-mono);">₹399<span style="font-size: 12px; color: var(--c-muted); font-weight: normal;">/user</span></p>
+              <ul style="list-style: none; font-size: 13px; color: var(--c-muted); line-height: 1.8; margin-bottom: 24px;">
+                <li>✓ Everything in Pro</li>
+                <li>✓ Team Dashboard</li>
+                <li>✓ 365 Days History</li>
+                <li>✓ Custom API Access</li>
+              </ul>
+              <button class="primary-btn" id="btn-plan-enterprise" style="width: 100%; background: var(--c-surface); color: var(--c-text); border: 1px solid var(--c-border);">Contact Sales</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="glass-card" style="margin-top: 24px;">
         <h3 class="card-title"><span>🔥</span> AI Paranoia Level</h3>
         <p class="small-text">Higher paranoia levels will block sites with even subtle phishing signals.</p>
         
@@ -257,6 +312,6 @@
     </div>
   </div>
 
-  <script src="dashboard.js"></script>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>

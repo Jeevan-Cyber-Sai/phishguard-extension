@@ -29,6 +29,7 @@
       <div class="logo">
         <img src="../../icons/icon128.png" class="logo-circle" width="24" height="24" alt="Phisherman Logo">
         <span class="logo-text">Phisherman</span>
+        <span id="plan-badge" style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--c-muted); color: #020617; margin-left: 6px;">FREE</span>
       </div>
       <div class="header-actions">
         <button class="logout-btn" id="logout-btn">Lock</button>
@@ -163,13 +164,19 @@
       <!-- Child Mode Toggle -->
       <div class="child-mode-container" style="padding: 10px 16px; border-top: 1px solid var(--c-border); display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
         <div style="display: flex; flex-direction: column;">
-          <span style="font-size: 13px; font-weight: 700; color: var(--c-accent);">Child Mode</span>
+          <span style="font-size: 13px; font-weight: 700; color: var(--c-accent);" id="child-mode-label">Child Mode</span>
           <span style="font-size: 10px; color: var(--c-muted);">Parental Control</span>
         </div>
         <label class="switch" style="position: relative; display: inline-block; width: 34px; height: 20px;">
           <input type="checkbox" id="child-mode-toggle" style="opacity: 0; width: 0; height: 0;">
           <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
         </label>
+      </div>
+
+      <!-- Plan Usage Status -->
+      <div id="usage-container" style="padding: 8px 16px; font-size: 11px; color: var(--c-muted); border-top: 1px solid var(--c-border); display: flex; justify-content: space-between;">
+        <span id="usage-text">Scans: 0 / 50</span>
+        <a href="#" id="upgrade-link" style="color: var(--c-accent); text-decoration: none; font-weight: 600;">Upgrade to Pro</a>
       </div>
     </div>
 
@@ -179,6 +186,6 @@
     </footer>
   </div>
 
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

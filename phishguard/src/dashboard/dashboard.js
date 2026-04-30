@@ -3,6 +3,8 @@
  * Manages the premium Command Center, history, parental controls, and engine settings.
  */
 
+import { getCurrentPlan, setPlan } from '../utils/plan-manager.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const tabs = document.querySelectorAll('.nav-btn');
   const contents = document.querySelectorAll('.tab-content');
@@ -100,6 +102,73 @@ document.addEventListener('DOMContentLoaded', async () => {
       await chrome.storage.local.set({ phishermanSettings: settings });
     });
   }
+
+  // ─── Plan Settings ────────────────────────────────────────────────────────
+  async function updatePlanUI() {
+    const plan = await getCurrentPlan();
+    
+    // Update badge and description
+    const badge = document.getElementById("plan-badge-dashboard");
+    const desc = document.getElementById("plan-description");
+    if (badge) {
+      badge.textContent = plan.badge;
+      badge.style.background = plan.color;
+      badge.style.color = plan.id === "free" ? "#020617" : "#FFF";
+    }
+    if (desc) {
+      desc.textContent = `You are currently on the ${plan.name} plan.`;
+    }
+
+    // Reset styles on all cards
+    ["free", "pro", "enterprise"].forEach(id => {
+      const card = document.getElementById(`plan-card-${id}`);
+      const btn = document.getElementById(`btn-plan-${id}`);
+      if (card && btn) {
+        if (id === plan.id) {
+          card.style.borderColor = "var(--c-safe)";
+          card.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.2)";
+          btn.textContent = "Current Plan";
+          btn.style.background = "var(--c-safe)";
+          btn.style.color = "white";
+          btn.style.border = "none";
+          btn.disabled = true;
+        } else {
+          // Reset based on tier
+          card.style.borderColor = id === "pro" ? "var(--c-accent)" : "transparent";
+          card.style.boxShadow = id === "pro" ? "0 0 20px var(--c-accent-dim)" : "none";
+          btn.textContent = id === "free" ? "Downgrade" : id === "enterprise" ? "Contact Sales" : "Upgrade to Pro";
+          btn.style.background = id === "pro" ? "var(--c-accent)" : "var(--c-surface)";
+          btn.style.color = id === "pro" ? "white" : "var(--c-text)";
+          btn.style.border = id === "pro" ? "none" : "1px solid var(--c-border)";
+          btn.disabled = false;
+        }
+      }
+    });
+  }
+
+  // Setup plan buttons
+  document.getElementById("btn-plan-free")?.addEventListener("click", async () => {
+    if (confirm("Are you sure you want to downgrade to the Free plan? You will lose unlimited scans and parental controls.")) {
+      await setPlan("free");
+      await updatePlanUI();
+      alert("Downgraded to Free plan.");
+    }
+  });
+
+  document.getElementById("btn-plan-pro")?.addEventListener("click", async () => {
+    // Simulated checkout flow
+    if (confirm("Simulated Checkout: Confirm payment of ₹299/mo for Phisherman Pro?")) {
+      await setPlan("pro");
+      await updatePlanUI();
+      alert("Welcome to Phisherman Pro! All premium features are now unlocked.");
+    }
+  });
+
+  document.getElementById("btn-plan-enterprise")?.addEventListener("click", async () => {
+    alert("Please contact enterprise@phisherman.local to set up your team workspace.");
+  });
+
+  await updatePlanUI();
 
   // ─── Parental Center ──────────────────────────────────────────────────────
   async function loadParentalSettings() {

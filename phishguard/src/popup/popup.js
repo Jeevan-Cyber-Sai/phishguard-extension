@@ -3,6 +3,8 @@
  * Fetches analysis result from background and renders the UI.
  */
 
+import { getCurrentPlan, trackScan, getUsageStats, hasFeature } from '../utils/plan-manager.js';
+
 (function () {
   "use strict";
 
@@ -268,7 +270,14 @@
   });
 
   // ─── Refresh / Re-analyze ─────────────────────────────────────────────────
-  function triggerReanalysis(tabId) {
+  async function triggerReanalysis(tabId) {
+    const usage = await trackScan();
+    if (usage.exceeded) {
+      alert("Scan limit reached for your current plan. Please upgrade to Pro.");
+      return;
+    }
+    updatePlanUI();
+
     refreshBtn?.classList.add("spinning");
     setState("loading");
     chrome.runtime.sendMessage({ type: "RE_ANALYZE", tabId }, () => {
@@ -552,8 +561,54 @@
     });
   }
 
+  // ─── Plan & Usage UI ───────────────────────────────────────────────────────
+  async function updatePlanUI() {
+    const stats = await getUsageStats();
+    const plan = stats.plan;
+    
+    // Update Badge
+    const badge = $("plan-badge");
+    if (badge) {
+      badge.textContent = plan.badge;
+      badge.style.background = plan.color;
+      badge.style.color = plan.id === "free" ? "#020617" : "#FFF";
+    }
+
+    // Update Usage Text
+    const usageText = $("usage-text");
+    if (usageText) {
+      usageText.textContent = `Scans: ${stats.scansToday} / ${stats.scanLimit === Infinity ? "Unlimited" : stats.scanLimit}`;
+    }
+
+    // Update Upgrade Link
+    const upgradeLink = $("upgrade-link");
+    if (upgradeLink) {
+      if (plan.id !== "free") {
+        hide(upgradeLink);
+      } else {
+        show(upgradeLink);
+        upgradeLink.onclick = (e) => {
+          e.preventDefault();
+          chrome.tabs.create({ url: chrome.runtime.getURL("src/dashboard/dashboard.html#settings") });
+        };
+      }
+    }
+
+    // Disable Child Mode toggle if not allowed
+    const childToggle = $("child-mode-toggle");
+    const childLabel = $("child-mode-label");
+    if (childToggle && childLabel) {
+      if (!plan.features.parentalControls) {
+        childToggle.disabled = true;
+        childLabel.textContent = "Child Mode (Pro)";
+        childLabel.style.color = "var(--c-muted)";
+      }
+    }
+  }
+
   // ─── Init ──────────────────────────────────────────────────────────────────
   async function initAuth() {
+    updatePlanUI();
     const { phishermanUnlocked } = await chrome.storage.session.get("phishermanUnlocked");
     if (phishermanUnlocked) {
       startApp();
