@@ -164,24 +164,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const blockList = document.getElementById("block-list");
     
     if (safeList) {
-      safeList.innerHTML = settings.safelist.map((domain, i) => `
-        <li>${domain} <button onclick="removeDomain('safe', ${i})">✕</button></li>
-      `).join("");
+      if (settings.safelist.length === 0) {
+        safeList.innerHTML = `<li style="color: var(--c-muted); font-style: italic; border: 1px dashed var(--c-border); justify-content: center;">No domains in safelist</li>`;
+      } else {
+        safeList.innerHTML = settings.safelist.map((domain, i) => `
+          <li>
+            <span>${domain}</span>
+            <button class="remove-domain-btn" data-type="safe" data-index="${i}">Remove</button>
+          </li>
+        `).join("");
+      }
     }
     
     if (blockList) {
-      blockList.innerHTML = settings.blocklist.map((domain, i) => `
-        <li>${domain} <button onclick="removeDomain('block', ${i})">✕</button></li>
-      `).join("");
+      if (settings.blocklist.length === 0) {
+        blockList.innerHTML = `<li style="color: var(--c-muted); font-style: italic; border: 1px dashed var(--c-border); justify-content: center;">No domains blocked</li>`;
+      } else {
+        blockList.innerHTML = settings.blocklist.map((domain, i) => `
+          <li>
+            <span>${domain}</span>
+            <button class="remove-domain-btn" data-type="block" data-index="${i}">Remove</button>
+          </li>
+        `).join("");
+      }
     }
-  }
 
-  window.removeDomain = async (type, index) => {
-    if (type === 'safe') settings.safelist.splice(index, 1);
-    else settings.blocklist.splice(index, 1);
-    await chrome.storage.local.set({ phishermanSettings: settings });
-    renderLists();
-  };
+    // Attach click handlers to all Remove buttons
+    document.querySelectorAll(".remove-domain-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const type = btn.dataset.type;
+        const index = parseInt(btn.dataset.index, 10);
+        if (type === "safe") settings.safelist.splice(index, 1);
+        else settings.blocklist.splice(index, 1);
+        await chrome.storage.local.set({ phishermanSettings: settings });
+        renderLists();
+      });
+    });
+  }
 
   document.getElementById("btn-add-safe")?.addEventListener("click", async () => {
     const val = document.getElementById("safe-input").value.trim().toLowerCase();

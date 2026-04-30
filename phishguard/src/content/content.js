@@ -132,6 +132,8 @@
       // Show a persistent small badge so user stays informed
       showSuspiciousBanner({ topReasons: ["You chose to continue on a flagged site. Be cautious."] });
     });
+  }
+
   // ─── Toast Notifications ─────────────────────────────────────────────────
   function showToast(text, icon = "ℹ️") {
     let container = document.getElementById("phisherman-toast-container");
@@ -194,9 +196,6 @@
       setTimeout(() => badge.style.opacity = "1", 2000);
     });
   }
-
-})();
-
 
   // ─── Visual Scanner & Auto Protection ────────────────────────────────────
   function visualScanner() {
@@ -297,3 +296,5 @@
           }
       });
   });
+
+})();

@@ -296,8 +296,27 @@ export function computeFinalScore({ urlScore, urlSignals, contentScore, contentS
     if (!seen.has(s.key)) { seen.add(s.key); allSignals.push(s); }
   }
 
-  // Weighted combination
-  let combined = (urlScore * 0.55) + (contentScore * 0.45);
+  // Weighted combination — dynamic weighting based on signal availability
+  // If content analysis returned signals, use balanced weights.
+  // If only URL signals exist, URL analysis should dominate.
+  let urlWeight, contentWeight;
+  if (contentSignals.length > 0) {
+    urlWeight = 0.55;
+    contentWeight = 0.45;
+  } else {
+    // No content signals — URL is our only data, trust it more
+    urlWeight = 0.85;
+    contentWeight = 0.15;
+  }
+
+  let combined = (urlScore * urlWeight) + (contentScore * contentWeight);
+
+  // Minimum floor: if URL alone shows overwhelming evidence, don't let
+  // a missing content scan suppress it. This ensures brand impersonation +
+  // suspicious TLD + no HTTPS will always flag as phishing.
+  if (urlScore >= 70) {
+    combined = Math.max(combined, urlScore * 0.85);
+  }
 
   // Trust reduction
   if (isTrusted) combined *= 0.2;
